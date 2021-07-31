@@ -1,32 +1,51 @@
 const themeSwitcher = document.getElementById('theme-switch-toggle');
 const body = document.querySelector('body');
-const Key = 'themeValue';
 const Theme = {
   LIGHT: 'light-theme',
   DARK: 'dark-theme',
 };
 
 
-(() => {
-    body.classList.add(Theme.LIGHT)
-})()
 
-themeSwitcher.addEventListener('change', changeTheme);
+themeSwitcher.addEventListener('change', saveUserTheme);
 
-function toggleTheme (savedТheme) {
-  savedТheme
-    ? body.classList.replace(Theme.LIGHT, Theme.DARK)
-    : body.classList.replace(Theme.DARK, Theme.LIGHT);
+let userSettings = {};
+
+function saveUserTheme() {
+  if (themeSwitcher.checked) {
+    body.classList.replace(Theme.LIGHT, Theme.DARK)
+    userSettings = {
+      userTheme: Theme.DARK,
+      isSwitcherOn: themeSwitcher.checked = true,
+    }
+   
+    localStorage.setItem('userSettings', JSON.stringify(userSettings))
+  } else {
+    body.classList.replace(Theme.DARK, Theme.LIGHT)
+    userSettings = {
+      userTheme: Theme.LIGHT,
+      isSwitcherOn: themeSwitcher.checked = false,
+    }
+
+    localStorage.setItem('userSettings', JSON.stringify(userSettings))
+  }
 }
 
-function changeTheme (e) {
-  const theme = e.target.checked;
-  toggleTheme(theme);
-  localStorage.setItem(Key, theme);
+const getLS = () => {
+  const isDataLS = localStorage.getItem('userSettings');
+  if (isDataLS) {
+    return isDataLS;
+  }
 }
-    
-function saveCurrentTheme () {
-    const savedТheme = JSON.parse(localStorage.getItem(Key));
-    themeSwitcher.checked = savedТheme;
-    changeTheme(savedТheme);
+const savedSettings = JSON.parse(getLS())
+if (!savedSettings) {
+  themeSwitcher.checked = false;
+  body.classList.add(Theme.LIGHT);
+}
+themeSwitcher.checked = savedSettings.isSwitcherOn
+
+const currentClass = body.classList.contains(Theme.LIGHT);
+if (currentClass !== savedSettings.userTheme) {
+  body.classList.remove(currentClass)
+  body.classList.toggle(savedSettings.userTheme)
 }
